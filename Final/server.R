@@ -8,19 +8,25 @@
 #
 
 library(shiny)
+library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(tidyverse)
+library(readr)
  
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+shinyServer(function(input, output, session) {
+    
+    data = read_csv("Breast_cancer_data.csv")
+    
+    set.seed(122)
+    histdata = rnorm(500)
+    
+    output$plot1 = renderPlot({
+        hist(histdata)
     })
-
+    
+    output$table1 = renderTable({
+        head(data)
+    })
 })
