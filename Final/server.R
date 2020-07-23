@@ -32,10 +32,10 @@ shinyServer(function(input, output, session) {
         } else if(input$plotType == "Histogram"){
             #Create the Histogram plot 
             if(input$colorCodeHist){
-                ggplot(data=data, aes(x=mean_radius))+
+                ggplot(data=data, aes_string(x=input$histVar))+
                     geom_histogram(aes(fill=diagnosis), position="dodge")    
             } else {
-                ggplot(data=data, aes(x=mean_radius))+
+                ggplot(data=data, aes_string(x=input$histVar))+
                     geom_histogram(color="blue", bins = 50)    
             }
         } else if(input$plotType == "Scatter"){
