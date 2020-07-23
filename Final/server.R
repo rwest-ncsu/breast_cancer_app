@@ -8,18 +8,15 @@
 #
 
 library(shiny)
-library(shiny)
 library(shinydashboard)
 library(ggplot2)
 library(tidyverse)
 library(readr)
+source("Global.R")
  
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-    
-    #Read in the data for the analysis
-    data = read_csv("Breast_cancer_data.csv")
-    data = data  %>%  mutate(diagnosis = as.factor(diagnosis))
+        
 
     
     output$plot1 = renderPlot({

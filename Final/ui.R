@@ -4,6 +4,8 @@ library(shiny)
 library(shinydashboard)
 library(ggplot2)
 library(tidyverse)
+library(readr)
+source("Global.R")
 
 
 shinyUI(dashboardPage(
@@ -48,8 +50,8 @@ shinyUI(dashboardPage(
                                             choices = c("Bar", "Histogram", "Scatter"), selected = "Scatter"),
                                 conditionalPanel(condition="input.plotType == 'Histogram'",
                                                  selectInput("histVar", "Select a Variable for the Histogram",
-                                                             choices = names(data%>%select(-diagnosis)),
-                                                             selected = "mean_radius"),
+                                                            choices = names(data%>%select(-diagnosis)),
+                                                            selected = "mean_radius"),
                                                  checkboxInput("colorCodeHist", "Color code this Histogram?")),
                                 conditionalPanel(condition="input.plotType == 'Scatter'",
                                                  selectInput("xScatter", "Choose an X axis",
@@ -81,12 +83,13 @@ shinyUI(dashboardPage(
                     #Sidebar for Clustering page
                     sidebarPanel(
                         selectInput("xCluster", "Select X axis", 
-                                    choices = names(data %>% select(-diagnosis)), 
+                                    choices = names(data%>%select(-diagnosis)), 
                                     selected = "mean_radius"),
                         selectInput("yCluster", "Select Y axis",
-                                    choices = names(data %>% select(-diagnosis)),
+                                    choices = names(data%>%select(-diagnosis)),
                                     selected="mean_texture"),
-                        numericInput("kmeans", "Select K for the K-Means Algorithm", min=1, max=12, step=1, value = 1)
+                        numericInput("kmeans", "Select K for the K-Means Algorithm", min=1, 
+                                     max=12, step=1, value = 1)
                     ),
                     
                     mainPanel(
