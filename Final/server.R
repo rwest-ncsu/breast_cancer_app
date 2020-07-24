@@ -48,6 +48,7 @@ shinyServer(function(input, output, session) {
         }   
     })
     
+    #Code for 3D plots
     output$threeDPlot = renderPlotly({
         axx = list(
             nticks = 4,
@@ -78,7 +79,7 @@ shinyServer(function(input, output, session) {
     })
     
     
-    
+    #
     output$table1 = renderTable({
         head(data)
     })

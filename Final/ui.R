@@ -5,6 +5,7 @@ library(shinydashboard)
 library(ggplot2)
 library(tidyverse)
 library(readr)
+library(plotly)
 source("Global.R")
 
 
@@ -77,7 +78,7 @@ shinyUI(dashboardPage(
                             
                             sidebarPanel(
                                 selectInput("threeDX", "Select a variable for the X axis",
-                                            choices = names(data)),
+                                            choices = names(data), selected = "mean_radius"),
                                 selectInput("threeDY", "Select a variable for the Y axis",
                                             choices = names(data)),
                                 selectInput("threeDZ", "Select a variable for the Z axis",
