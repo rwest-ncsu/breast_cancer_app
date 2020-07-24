@@ -12,6 +12,7 @@ library(shinydashboard)
 library(ggplot2)
 library(tidyverse)
 library(readr)
+library(plotly)
 source("Global.R")
  
 # Define server logic required to draw a histogram
@@ -46,6 +47,37 @@ shinyServer(function(input, output, session) {
             }
         }   
     })
+    
+    output$threeDPlot = renderPlotly({
+        axx = list(
+            nticks = 4,
+            range = range(data[input$threeDX]),
+            title = "X Axis"
+        )
+        
+        axy = list(
+            nticks = 4,
+            range = range(data[input$threeDY]),
+            title = input$threeDY
+        )
+        
+        axz = list(
+            nticks = 4,
+            range = range(data[input$threeDZ]),
+            title = input$threeDZ
+        )
+        
+        x = data[[input$threeDX]]
+        y = data[[input$threeDY]]
+        z = data[[input$threeDZ]]
+        
+        fig = plot_ly(x = ~x, y = ~y, z = ~z, type = 'mesh3d') 
+        fig = fig %>% layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+        
+        return(fig)
+    })
+    
+    
     
     output$table1 = renderTable({
         head(data)

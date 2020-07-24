@@ -39,7 +39,7 @@ shinyUI(dashboardPage(
             tabItem(tabName = "summaries",
                 tabsetPanel(
                     
-                    #1st tab designated to viewing plots
+                    #1st tab designated to viewing 2D plots
                     tabPanel("Plots",
                         sidebarLayout(
                             
@@ -70,9 +70,42 @@ shinyUI(dashboardPage(
                         )
                     ),
                     
+                    
+                    #3rd Tab Designated to 3d Plots
+                    tabPanel("3D Plots",
+                        sidebarLayout(
+                            
+                            sidebarPanel(
+                                selectInput("threeDX", "Select a variable for the X axis",
+                                            choices = names(data)),
+                                selectInput("threeDY", "Select a variable for the Y axis",
+                                            choices = names(data)),
+                                selectInput("threeDZ", "Select a variable for the Z axis",
+                                            choices = names(data)),
+                            ),
+                            
+                            mainPanel(
+                                plotlyOutput("threeDPlot")    
+                            )
+                        )
+                    ),
+                    
                     #2nd tab designated to Numeric Summaries
                     tabPanel("Numeric Summaries",
-                             tableOutput("table1"))
+                             
+                             sidebarLayout(
+                                 
+                                 #Contents of the sidebar
+                                sidebarPanel(
+                                    
+                                ),
+                                
+                                #Main panel
+                                mainPanel(
+                                    tableOutput("table1")    
+                                )
+                             )
+                    )
                 )
             ),
             
