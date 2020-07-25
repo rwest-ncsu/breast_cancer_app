@@ -5,10 +5,11 @@ library(tidyverse)
 library(readr)
 library(plotly)
 library(DT)
+library(knitr)
 
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(
-  Diagnosis = as.factor(diagnosis),
+  Diagnosis = factor(diagnosis, levels = c(0, 1), labels = c("Non-Cancerous", "Cancerous")),
   Radius = mean_radius,
   Texture = mean_texture,
   Perimeter = mean_perimeter,

@@ -25,7 +25,8 @@ shinyUI(dashboardPage(
             tabItem(tabName = "info",
                 box(
                     h4("This is a project centered around Breast Cancer Data")
-                )   
+                ),
+                dataTableOutput("readData")
             ), 
             
             #Summary Page Content
@@ -86,7 +87,7 @@ shinyUI(dashboardPage(
                                 
                                 #Main panel
                                 mainPanel(
-                                    tableOutput("numericSummary")    
+                                    dataTableOutput("numericSummary")    
                                 )
                              )
                     )
