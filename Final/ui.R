@@ -1,11 +1,3 @@
-
-#Load in necessary packages
-library(shiny)
-library(shinydashboard)
-library(ggplot2)
-library(tidyverse)
-library(readr)
-library(plotly)
 source("Global.R")
 
 
@@ -51,23 +43,23 @@ shinyUI(dashboardPage(
                                             choices = c("Bar", "Histogram", "Scatter", "Box"), selected = "Scatter"),
                                 conditionalPanel(condition="input.plotType == 'Histogram'",
                                                  selectInput("histVar", "Select a Variable for the Histogram",
-                                                            choices = names(data%>%select(-diagnosis)),
-                                                            selected = "mean_radius"),
+                                                            choices = varNames,
+                                                            selected = "Radius"),
                                                  checkboxInput("colorCodeHist", "Color code this Histogram?"),
                                                  checkboxInput("histDensity", "Overlay a density to this Histogram?")),
                                 conditionalPanel(condition="input.plotType == 'Scatter'",
                                                  selectInput("xScatter", "Choose an X axis",
-                                                             choices = names(data%>%select(-diagnosis)),
-                                                             selected = "mean_radius"),
+                                                             choices = varNames,
+                                                             selected = "Radius"),
                                                  selectInput("yScatter", "Choose a Y axis",
-                                                             choices = names(data%>%select(-diagnosis)),
-                                                             selected = "mean_texture"),
+                                                             choices = varNames,
+                                                             selected = "Texture"),
                                                  checkboxInput("colorCodeScatter", "Color code this Scatter Plot by diagnosis?"),
-                                                 checkboxInput("scatterTrend", "Add a linear trendline?")),
+                                                 checkboxInput("scatterTrend", "Add a trendline?")),
                                 conditionalPanel(condition="input.plotType == 'Box'",
                                                  selectInput("boxVar", "Select a Variable for this Boxplot",
-                                                             choices = names(data%>%select(-diagnosis)),
-                                                             selected="mean_radius"),
+                                                             choices = varNames,
+                                                             selected="Radius"),
                                                  checkboxInput("groupBox", "Group the Boxplot by Diagnosis?"))
                                 
                             ),
@@ -84,14 +76,17 @@ shinyUI(dashboardPage(
                              
                              sidebarLayout(
                                  
-                                 #Contents of the sidebar
+                                #Contents of the sidebar
                                 sidebarPanel(
-                                    
+                                    selectInput("numericVar", "Select a variable for numeric Summary",
+                                                choices = varNames, 
+                                                selected="Radius"),
+                                    checkboxInput("groupByDiagnosis", "Group this summary by diagnosis?")
                                 ),
                                 
                                 #Main panel
                                 mainPanel(
-                                    tableOutput("table1")    
+                                    tableOutput("numericSummary")    
                                 )
                              )
                     )
@@ -105,11 +100,11 @@ shinyUI(dashboardPage(
                     #Sidebar for Clustering page
                     sidebarPanel(
                         selectInput("xCluster", "Select X axis", 
-                                    choices = names(data%>%select(-diagnosis)), 
-                                    selected = "mean_radius"),
+                                    choices = varNames, 
+                                    selected = "Radius"),
                         selectInput("yCluster", "Select Y axis",
-                                    choices = names(data%>%select(-diagnosis)),
-                                    selected="mean_texture"),
+                                    choices = varNames,
+                                    selected="Texture"),
                         numericInput("kmeans", "Select K for the K-Means Algorithm", min=1, 
                                      max=12, step=1, value = 1)
                     ),
