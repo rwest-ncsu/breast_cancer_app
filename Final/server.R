@@ -13,24 +13,42 @@ shinyServer(function(input, output, session) {
         if(input$plotType == "Bar"){
             #Create the single Bar plot
             g = ggplot(data=data, aes(x=Diagnosis))+
-                geom_bar(aes(fill=Diagnosis))
+                geom_bar(aes(fill=Diagnosis))+
+                scale_fill_manual(values=c("turquoise3", "tomato2"))
             ggplotly(g)
+            
+            
         } else if(input$plotType == "Histogram"){
             #Create the Histogram plot 
-            if(input$colorCodeHist){
+            if(input$colorCodeHist & input$histDensity){
                 g = ggplot(data=data, aes_string(x=input$histVar))+
-                    geom_histogram(aes(fill=Diagnosis), position="dodge", color="black") 
+                    geom_histogram(aes(fill=Diagnosis, y=..density..), position="dodge", color="black", bins = input$nBins)+
+                    geom_density(aes(fill=Diagnosis), alpha=input$alphaValue, adjust=input$adjustValue)+
+                    scale_fill_manual(values=c("turquoise3", "tomato2"))
                 ggplotly(g)
-            } else {
+            } else if(input$colorCodeHist & !input$histDensity){
                 g = ggplot(data=data, aes_string(x=input$histVar))+
-                    geom_histogram(fill="turquoise3", color="black", bins = 50) 
+                    geom_histogram(aes(fill=Diagnosis, y=..density..), color="black", bins = input$nBins, position="dodge")+
+                    scale_fill_manual(values=c("turquoise3", "tomato2"))
+                ggplotly(g)
+            } else if(!input$colorCodeHist & input$histDensity){
+                g = ggplot(data=data, aes_string(x=input$histVar))+
+                    geom_histogram(aes(y=..density..), fill="turquoise3", color="black", bins = input$nBins)+
+                    geom_density(fill="turquoise1", alpha=input$alphaValue, adjust=input$adjustValue)
+                ggplotly(g)
+            } else if(!input$colorCodeHist & !input$histDensity){
+                g = ggplot(data=data, aes_string(x=input$histVar), aes(y=..density..))+
+                    geom_histogram(aes(y=..density..), fill="turquoise3", color="black", bins = input$nBins) 
                 ggplotly(g)
             }
+            
+            
         } else if(input$plotType == "Scatter"){
             #Create Scatter Plots
             if(input$colorCodeScatter & !input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
-                    geom_point(aes(color=Diagnosis))
+                    geom_point(aes(color=Diagnosis), alpha=0.8)+
+                    scale_color_manual(values=c("turquoise3", "tomato2"))
                 ggplotly(g)
             } else if(!input$colorCodeScatter & !input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
@@ -38,8 +56,9 @@ shinyServer(function(input, output, session) {
                 ggplotly(g)
             } else if(input$colorCodeScatter & input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
-                    geom_point(aes(color=Diagnosis))+
-                    geom_smooth(aes(group=Diagnosis, color=Diagnosis), se=TRUE)
+                    geom_point(aes(color=Diagnosis), alpha=0.8)+
+                    geom_smooth(aes(group=Diagnosis, color=Diagnosis), se=TRUE)+
+                    scale_color_manual(values=c("turquoise3", "tomato2"))
                 ggplotly(g)
             } else if(!input$colorCodeScatter & input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
@@ -48,11 +67,13 @@ shinyServer(function(input, output, session) {
                 ggplotly(g)
             }
             
+            
         } else if(input$plotType == "Box"){
             #Create Boxplots
             if(input$groupBox){
                 g = ggplot(data = data, aes_string(y=input$boxVar))+
-                    geom_boxplot(aes(x=Diagnosis, color=Diagnosis))
+                    geom_boxplot(aes(x=Diagnosis, color=Diagnosis))+
+                    scale_color_manual(values=c("turquoise3", "tomato2"))
                 ggplotly(g)
             } else {
                 g = ggplot(data = data, aes_string(y=input$boxVar))+
@@ -108,7 +129,7 @@ shinyServer(function(input, output, session) {
     
     
     #Code for K-Means Plot
-    output$kmeansPlot = renderPlot({
+    output$PCAPlot = renderPlot({
         ggplot(data=data, aes(x=Radius, y=Texture))+
             geom_point(size=3)
     })

@@ -11,7 +11,7 @@ shinyUI(dashboardPage(
         sidebarMenu(
             menuItem("Information", tabName = "info"),
             menuItem("Summaries", tabName = "summaries"), 
-            menuItem("Clustering", tabName = "cluster"),
+            menuItem("PCA", tabName = "PCA"),
             menuItem("Modeling", tabName = "model")
         )
     ), 
@@ -47,7 +47,14 @@ shinyUI(dashboardPage(
                                                             choices = varNames,
                                                             selected = "Radius"),
                                                  checkboxInput("colorCodeHist", "Color code this Histogram?"),
-                                                 checkboxInput("histDensity", "Overlay a density to this Histogram?")),
+                                                 checkboxInput("histDensity", "Overlay a density to this Histogram?"),
+                                                 sliderInput("nBins", "Select the number of bins for this Histogram",
+                                                             min=10, max=75, step=1, value=30),
+                                                 conditionalPanel(condition="input.histDensity == 1",
+                                                                  sliderInput("alphaValue", "Set an Opacity for the Density",
+                                                                              min=0.1, max=1, step=0.05, value=0.7),
+                                                                  sliderInput("adjustValue", "Set an Adjustment Value for the Density",
+                                                                              min=0.1, max=1, step=0.05, value=0.5))),
                                 conditionalPanel(condition="input.plotType == 'Scatter'",
                                                  selectInput("xScatter", "Choose an X axis",
                                                              choices = varNames,
@@ -94,11 +101,11 @@ shinyUI(dashboardPage(
                 )
             ),
             
-            #Clustering Page Content
-            tabItem(tabName = "cluster",
+            #PCA Page Content
+            tabItem(tabName = "PCA",
                 sidebarLayout(
                     
-                    #Sidebar for Clustering page
+                    #Sidebar for PCA page
                     sidebarPanel(
                         selectInput("xCluster", "Select X axis", 
                                     choices = varNames, 
@@ -111,7 +118,7 @@ shinyUI(dashboardPage(
                     ),
                     
                     mainPanel(
-                        plotOutput("kmeansPlot")
+                        plotOutput("PCAPlot")
                     )
                 )
             ),
