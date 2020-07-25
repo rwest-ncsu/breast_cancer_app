@@ -48,12 +48,13 @@ shinyUI(dashboardPage(
                             sidebarPanel(
                                 selectInput("plotType", 
                                             "Select a Plot",
-                                            choices = c("Bar", "Histogram", "Scatter"), selected = "Scatter"),
+                                            choices = c("Bar", "Histogram", "Scatter", "Box"), selected = "Scatter"),
                                 conditionalPanel(condition="input.plotType == 'Histogram'",
                                                  selectInput("histVar", "Select a Variable for the Histogram",
                                                             choices = names(data%>%select(-diagnosis)),
                                                             selected = "mean_radius"),
-                                                 checkboxInput("colorCodeHist", "Color code this Histogram?")),
+                                                 checkboxInput("colorCodeHist", "Color code this Histogram?"),
+                                                 checkboxInput("histDensity", "Overlay a density to this Histogram?")),
                                 conditionalPanel(condition="input.plotType == 'Scatter'",
                                                  selectInput("xScatter", "Choose an X axis",
                                                              choices = names(data%>%select(-diagnosis)),
@@ -61,35 +62,22 @@ shinyUI(dashboardPage(
                                                  selectInput("yScatter", "Choose a Y axis",
                                                              choices = names(data%>%select(-diagnosis)),
                                                              selected = "mean_texture"),
-                                                 checkboxInput("colorCodeScatter", "Color code this Scatter Plot?"))
+                                                 checkboxInput("colorCodeScatter", "Color code this Scatter Plot by diagnosis?"),
+                                                 checkboxInput("scatterTrend", "Add a linear trendline?")),
+                                conditionalPanel(condition="input.plotType == 'Box'",
+                                                 selectInput("boxVar", "Select a Variable for this Boxplot",
+                                                             choices = names(data%>%select(-diagnosis)),
+                                                             selected="mean_radius"),
+                                                 checkboxInput("groupBox", "Group the Boxplot by Diagnosis?"))
                                 
                             ),
                             
                             mainPanel(
-                                plotOutput("plot1")    
+                                plotlyOutput("summaryPlot")    
                             )
                         )
                     ),
-                    
-                    
-                    #3rd Tab Designated to 3d Plots
-                    tabPanel("3D Plots",
-                        sidebarLayout(
-                            
-                            sidebarPanel(
-                                selectInput("threeDX", "Select a variable for the X axis",
-                                            choices = names(data), selected = "mean_radius"),
-                                selectInput("threeDY", "Select a variable for the Y axis",
-                                            choices = names(data)),
-                                selectInput("threeDZ", "Select a variable for the Z axis",
-                                            choices = names(data)),
-                            ),
-                            
-                            mainPanel(
-                                plotlyOutput("threeDPlot")    
-                            )
-                        )
-                    ),
+                   
                     
                     #2nd tab designated to Numeric Summaries
                     tabPanel("Numeric Summaries",

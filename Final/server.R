@@ -20,70 +20,57 @@ shinyServer(function(input, output, session) {
         
 
     
-    output$plot1 = renderPlot({
-        
+    output$summaryPlot = renderPlotly({
         
         if(input$plotType == "Bar"){
             #Create the single Bar plot
-            ggplot(data=data, aes(x=diagnosis))+
+            g = ggplot(data=data, aes(x=diagnosis))+
                 geom_bar(aes(fill=diagnosis))
+            ggplotly(g)
         } else if(input$plotType == "Histogram"){
             #Create the Histogram plot 
             if(input$colorCodeHist){
-                ggplot(data=data, aes_string(x=input$histVar))+
-                    geom_histogram(aes(fill=diagnosis), position="dodge")    
+                g = ggplot(data=data, aes_string(x=input$histVar))+
+                    geom_histogram(aes(fill=diagnosis), position="dodge") 
+                ggplotly(g)
             } else {
-                ggplot(data=data, aes_string(x=input$histVar))+
-                    geom_histogram(color="blue", bins = 50)    
+                g = ggplot(data=data, aes_string(x=input$histVar))+
+                    geom_histogram(fill="blue", bins = 50) 
+                ggplotly(g)
             }
         } else if(input$plotType == "Scatter"){
             #Create Scatter Plots
             if(input$colorCodeScatter){
-                ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
+                g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
                     geom_point(aes(color=diagnosis))
+                ggplotly(g)
             } else {
-                ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
+                g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
                     geom_point(color="red")
+                ggplotly(g)
+            }
+        } else if(input$plotType == "Box"){
+            #Create Boxplots
+            if(input$groupBox){
+                g = ggplot(data = data, aes_string(y=input$boxVar))+
+                    geom_boxplot(aes(x=diagnosis, color=diagnosis))
+                ggplotly(g)
+            } else {
+                g = ggplot(data = data, aes_string(y=input$boxVar))+
+                    geom_boxplot(color="blue")
+                ggplotly(g)
             }
         }   
     })
     
-    #Code for 3D plots
-    output$threeDPlot = renderPlotly({
-        axx = list(
-            nticks = 4,
-            range = range(data[input$threeDX]),
-            title = "X Axis"
-        )
-        
-        axy = list(
-            nticks = 4,
-            range = range(data[input$threeDY]),
-            title = input$threeDY
-        )
-        
-        axz = list(
-            nticks = 4,
-            range = range(data[input$threeDZ]),
-            title = input$threeDZ
-        )
-        
-        x = data[[input$threeDX]]
-        y = data[[input$threeDY]]
-        z = data[[input$threeDZ]]
-        
-        fig = plot_ly(x = ~x, y = ~y, z = ~z, type = 'mesh3d') 
-        fig = fig %>% layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
-        
-        return(fig)
-    })
     
-    
-    #
+    #Code for Numeric Summaries
     output$table1 = renderTable({
         head(data)
     })
     
+    
+    #Code for K-Means Plot
     output$kmeansPlot = renderPlot({
         ggplot(data=data, aes(x=mean_radius, y=mean_texture))+
             geom_point(size=3)
