@@ -107,9 +107,9 @@ shinyUI(dashboardPage(
                     
                     #Sidebar for PCA page
                     sidebarPanel(
-                        selectInput("xCluster", "Select X axis", 
-                                    choices = varNames, 
-                                    selected = "Radius"),
+                        selectInput("PCAType", "Select a Plot to view:", 
+                                    choices = c("Biplot", "Variance Proportion Plot"), 
+                                    selected = "Biplot"),
                         selectInput("yCluster", "Select Y axis",
                                     choices = varNames,
                                     selected="Texture"),
@@ -134,7 +134,46 @@ shinyUI(dashboardPage(
                     tabPanel("Logistic Regression"),
                     
                     #3rd Tab designated to Classification Trees
-                    tabPanel("Classification Trees")
+                    tabPanel("Classification Trees",
+                             sidebarLayout(
+                                 
+                                 sidebarPanel(
+                                    selectInput("treeType", "Select a type of Tree to use for your model",
+                                                choices = c("Single", "Bagged", "Random Forest", "Boosted"),
+                                                selected = "Single"),
+                                    conditionalPanel(condition="input.treeType == 'Single'",
+                                                     selectInput("singleIndex", "Select an index for the algorithm",
+                                                                 choices=c("deviance", "gini")),
+                                                     actionButton("generateSingle", "Generate!")),
+                                    conditionalPanel(condition="input.treeType == 'Bagged'",
+                                                     sliderInput("baggedTrees", "How many trees do you want in your model?",
+                                                                 min=10, max=500, step=10, value = 200),
+                                                     checkboxInput("baggedImportance", "Would you like to evaluate importance of variables?"),
+                                                     actionButton("generateBagged", "Generate!")
+                                                     ),
+                                    conditionalPanel(condition="input.treeType == 'Random Forest'",
+                                                     selectInput("RFmtry", "Select the number of variables to use",
+                                                                 choices=c("1", "2", "3", "4", "5"),
+                                                                 selected = "2"),
+                                                     sliderInput("RFTrees", "How many trees do you want in your model?",
+                                                                 min=10, max=500, step=10, value=200),
+                                                     checkboxInput("RFImportance", "Would you like to evaluate importance of variables?"),
+                                                     conditionalPanel(condition="input.RFmtry == '5'",
+                                                                      h4("Notice: selecting all 5 variables is essentially a bagged tree")),
+                                                     actionButton("generateRF", "Generate!")),
+                                    conditionalPanel(condition="input.treeType == 'Boosted'",
+                                                     sliderInput("boostTrees", "Select the number of Trees to use:",
+                                                                 min=100, max=5000, step=50, value=200),
+                                                     sliderInput("boostShrinkage", "Set a Shrinkage Parameter",
+                                                                 min=0.01, max=0.3, step=0.01, value=0.1),
+                                                     sliderInput("boostInteraction", "Set an Interaction Depth for your model:",
+                                                                 min=1, max=20, step=1, value=2),
+                                                     actionButton("generateBoost", "Generate!"))
+                                    
+                                 ),
+                                 
+                                 mainPanel()
+                             ))
                 )
             )
         )

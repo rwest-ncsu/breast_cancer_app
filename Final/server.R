@@ -128,9 +128,20 @@ shinyServer(function(input, output, session) {
     })
     
     
-    #Code for K-Means Plot
+    #Code for PCA Plot
+    PCs = prcomp(data %>% dplyr::select(-Diagnosis), scale = T, center=T)
     output$PCAPlot = renderPlot({
-        ggplot(data=data, aes(x=Radius, y=Texture))+
-            geom_point(size=3)
+        if(input$PCAType == "Biplot"){
+            biplot(PCs, xlabs=rep(".", nrow(data)), cex=1.2)
+        }
+        
+        if(input$PCAType == "Variance Proportion Plot"){
+            par(mfrow = c(1,2))
+            plot(PCs$sdev^2/sum(PCs$sdev^2), xlab="Principal Component", ylab="Proportion of Variance Explained",
+                 ylim=c(0,1), type="b")
+            plot(cumsum(PCs$sdev^2/sum(PCs$sdev^2)), xlab="Principal Component", ylab="Cum. Proportion of Variance Explained", 
+                 ylim=c(0,1), type="b")
+        }
+        
     })
 })

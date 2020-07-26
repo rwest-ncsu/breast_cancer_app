@@ -6,6 +6,9 @@ library(readr)
 library(plotly)
 library(DT)
 library(knitr)
+library(tree)
+library(gbm)
+
 
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(
