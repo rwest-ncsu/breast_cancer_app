@@ -9,7 +9,6 @@ library(knitr)
 library(tree)
 library(gbm)
 
-
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(
   Diagnosis = factor(diagnosis, levels = c(0, 1), labels = c("Non-Cancerous", "Cancerous")),
@@ -22,3 +21,4 @@ data = data %>% dplyr::transmute(
 
 
 varNames = names(data%>%dplyr::select(-Diagnosis))
+

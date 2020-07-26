@@ -63,7 +63,7 @@ shinyServer(function(input, output, session) {
             } else if(!input$colorCodeScatter & input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
                     geom_point(color="turquoise3")+
-                    geom_smooth(se=TRUE, color="red")
+                    geom_smooth(se=TRUE, color="blue")
                 ggplotly(g)
             }
             
@@ -129,10 +129,19 @@ shinyServer(function(input, output, session) {
     
     
     #Code for PCA Plot
+    output$pcChoices = renderUI({
+        firstChoice = c(1:5)
+        selected = as.numeric(input$PCX)
+        secondChoice = firstChoice[-selected]
+        selectInput("PCY", "Select a Principal Component for the Y axis:",
+                    choices=secondChoice)
+        
+    })
+    
     PCs = prcomp(data %>% dplyr::select(-Diagnosis), scale = T, center=T)
     output$PCAPlot = renderPlot({
         if(input$PCAType == "Biplot"){
-            biplot(PCs, xlabs=rep(".", nrow(data)), cex=1.2)
+            biplot(PCs, xlabs=rep(".", nrow(data)), cex=1.2, choices = c(as.numeric(input$PCX), as.numeric(input$PCY)))
         }
         
         if(input$PCAType == "Variance Proportion Plot"){

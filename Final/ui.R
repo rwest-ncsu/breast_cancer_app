@@ -13,8 +13,8 @@ shinyUI(dashboardPage(
             menuItem("Summaries", tabName = "summaries"), 
             menuItem("PCA", tabName = "PCA"),
             menuItem("Modeling", tabName = "model")
-        )
-    ), 
+        )#End Sidebar menu
+    ),#End Sidebar 
     
     
     #Define Body content
@@ -27,7 +27,7 @@ shinyUI(dashboardPage(
                     h4("This is a project centered around Breast Cancer Data")
                 ),
                 dataTableOutput("readData")
-            ), 
+            ),#End Info Tab item 
             
             #Summary Page Content
             tabItem(tabName = "summaries",
@@ -69,26 +69,24 @@ shinyUI(dashboardPage(
                                                              choices = varNames,
                                                              selected="Radius"),
                                                  checkboxInput("groupBox", "Group the Boxplot by Diagnosis?"))
-                                
                             ),
                             
                             mainPanel(
                                 plotlyOutput("summaryPlot")    
                             )
-                        )
-                    ),
+                        ) #End sidebar layout
+                    ),#End Tab Panel
                    
                     
                     #2nd tab designated to Numeric Summaries
                     tabPanel("Numeric Summaries",
                              
-                             sidebarLayout(
+                            sidebarLayout(
                                  
                                 #Contents of the sidebar
                                 sidebarPanel(
                                     selectInput("numericVar", "Select a variable for numeric Summary",
-                                                choices = varNames, 
-                                                selected="Radius"),
+                                                choices = varNames, selected="Radius"),
                                     checkboxInput("groupByDiagnosis", "Group this summary by diagnosis?")
                                 ),
                                 
@@ -96,10 +94,10 @@ shinyUI(dashboardPage(
                                 mainPanel(
                                     dataTableOutput("numericSummary")    
                                 )
-                             )
-                    )
-                )
-            ),
+                            ) #End Sidebar layout
+                    ) #End numeric Summary tab
+                ) #End Summary tabset panel
+            ),#End Summary tab item
             
             #PCA Page Content
             tabItem(tabName = "PCA",
@@ -110,18 +108,20 @@ shinyUI(dashboardPage(
                         selectInput("PCAType", "Select a Plot to view:", 
                                     choices = c("Biplot", "Variance Proportion Plot"), 
                                     selected = "Biplot"),
-                        selectInput("yCluster", "Select Y axis",
-                                    choices = varNames,
-                                    selected="Texture"),
-                        numericInput("kmeans", "Select K for the K-Means Algorithm", min=1, 
-                                     max=12, step=1, value = 1)
+                        conditionalPanel(condition="input.PCAType == 'Biplot'",
+                                        selectInput("PCX", "Select a Principal Component for the X axis",
+                                                    choices = c(1:5), selected=1),
+                                        uiOutput("pcChoices"),
+                                        )
                     ),
                     
                     mainPanel(
-                        plotOutput("PCAPlot")
+                        plotOutput("PCAPlot"),
+                        br(),
+                        actionButton("savePCA", "Save this plot?")
                     )
-                )
-            ),
+                )#End sidebar layout
+            ), #End PCA Tab item
             
             #Modeling Page Content
             tabItem(tabName = "model",
@@ -170,14 +170,14 @@ shinyUI(dashboardPage(
                                                                  min=1, max=20, step=1, value=2),
                                                      actionButton("generateBoost", "Generate!"))
                                     
-                                 ),
+                                 ),#End Sidebar Panel
                                  
                                  mainPanel()
-                             ))
-                )
-            )
-        )
-    )
-    
-    
-))
+                        ) #End sidebar layout
+                    ) #End classification tree tab
+                ) #End Model Tabset panel
+            )#End model tab item
+        )#End Tab Items
+    )#End Dashboard Body
+
+))#End ShinyUI and Dashboard Page
