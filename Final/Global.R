@@ -10,8 +10,8 @@ library(tree)
 library(gbm)
 library(randomForest)
 library(caret)
-library(GGally)
-library(corrplot)
+library(class)
+library(shinybusy)
 
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(
@@ -22,7 +22,10 @@ data = data %>% dplyr::transmute(
   Area = mean_area,
   Smoothness = mean_smoothness)
 
-train = sample(data, size=nrow(data)*0.7, replace=F)
+set.seed(623)
+
+
+train = sample(1:nrow(data), size=nrow(data)*0.7)
 test = dplyr::setdiff(1:nrow(data), train)
 
 data_train = data[train, ]
@@ -30,3 +33,4 @@ data_test = data[test, ]
 
 varNames = names(data%>%dplyr::select(-Diagnosis))
 
+modelChoices = c("Single Tree", "Bagged Tree", "Random Forest", "Boosted Tree", "KNN", "Logistic Regression")

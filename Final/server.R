@@ -157,14 +157,32 @@ shinyServer(function(input, output, session) {
     
     #Build KNN model
     knnModel = eventReactive(input$generateKNN, {
-        #PICK UP HERE!!
-        #knn(Diagnosis ~ ., train=data_train, method="knn", preProcess=c("center", "scale"), k=input$kNNChoice)
+        #knn(Diagnosis ~ ., train=data_train, test=data_test, cl=data_train$Diagnosis, k=input$kNNChoice)
+        
+        trctrl = trainControl(method="repeatedcv", number = 10, repeats = 3)
+        train(Diagnosis ~ ., data=data_train, method="knn",
+              trControl = trctrl,
+              preProcess = c("center", "scale"),
+              tuneGrid = data.frame(k = seq(2, 50, by=2)))
     })
     
-    
-    output$knnText = renderText(
-        summary(knnModel())
+    output$knnPlot = renderPlot(
+        ggplot(data=knnModel())+
+            labs(title = "KNN Algorithm: K against Accuracy", x="K", y="Accuracy")
     )
+    
+    
+    #Build Logistic Regression Model
+    logisticModel = eventReactive(input$generateLogistic, {
+        glm(Diagnosis ~ ., data=data_train, family = "binomial")
+    })
+    
+    output$logisticCoefficients = renderTable({
+        tab = data.frame(logisticModel()$coefficients)
+        rownames(tab) = c("Intercept", "Radius", "Texture", "Perimeter", "Area", "Smoothness")
+        colnames(tab) =  "Coefficients"
+        tab
+    }, rownames = TRUE, striped = TRUE, colnames = TRUE)
     
     #Build single tree model
     treeModel = eventReactive(input$generateSingle, {
@@ -187,7 +205,6 @@ shinyServer(function(input, output, session) {
             n.trees = input$boostTrees, shrinkage = input$boostShrinkage, 
             interaction.depth = input$boostInteraction)
     })
-    
     
     #Produce tree based model images
     output$modelPlot = renderPlot({
@@ -239,6 +256,40 @@ shinyServer(function(input, output, session) {
         }
     )
     
+    #Build prediction data frame
+    newData = eventReactive(input$predict, {
+        data.frame(
+            Radius = input$radiusInput,
+            Texture = input$textureInput,
+            Perimeter = input$perimeterInput,
+            Area = input$areaInput,
+            Smoothness = input$smoothnessInput
+        )
+    })
     
+    #Output custom Prediction
+    prediction = eventReactive(input$predict, {
+        if(input$modelSelect == "Single Tree"){
+            pred = predict(treeModel(), newdata = newData(), type="class")
+            #pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
+        } else if(input$modelSelect =="Bagged Tree"){
+            pred = predict(baggedModel(), newdata = newData(), type="class")
+            pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
+        } else if(input$modelSelect =="Random Forest"){
+            pred = predict(rfModel(), newdata=newData(), type="class")
+            pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
+        } else if(input$modelSelect == "KNN"){
+            pred = predict(knnModel(), newdata=newData())
+            pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
+        } else if(input$modelSelect=="Logistic Regression"){
+            pred = predict(logisticModel(), newdata=newData(), type="response")
+            pred = ifelse(pred >= 0.5, "Cancerous", "Non-cancerous")
+        }
+        return(as.character(pred))
+    })
+    
+    output$showPrediction = renderText({
+        prediction()
+    })
     
 })

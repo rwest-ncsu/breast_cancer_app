@@ -12,7 +12,8 @@ shinyUI(dashboardPage(
             menuItem("Information", tabName = "info"),
             menuItem("Summaries", tabName = "summaries"), 
             menuItem("PCA", tabName = "PCA"),
-            menuItem("Modeling", tabName = "model")
+            menuItem("Modeling", tabName = "model"), 
+            menuItem("Predictions", tabName = "predict")
         )#End Sidebar menu
     ),#End Sidebar 
     
@@ -23,12 +24,14 @@ shinyUI(dashboardPage(
             
             #Info Page content
             tabItem(tabName = "info",
-                box(
-                    h4("This is a project centered around Breast Cancer Data"), width = 12
+                box(width=12,
+                    h4("This is a project centered around Breast Cancer Data")
                 ),
                 checkboxInput("viewData", "View the data that this app uses?"),
                 conditionalPanel(condition="input.viewData == 1",
-                                 dataTableOutput("readData"),
+                                 box(width = 12, 
+                                    dataTableOutput("readData") 
+                                    ),
                                  downloadButton("saveData", "Save this Data to a CSV?")),
                 
             ),#End Info Tab item 
@@ -76,7 +79,9 @@ shinyUI(dashboardPage(
                             ),
                             
                             mainPanel(
-                                plotlyOutput("summaryPlot")    
+                                box(width = 12, 
+                                    plotlyOutput("summaryPlot")
+                                )    
                             )
                         ) #End sidebar layout
                     ),#End Tab Panel
@@ -96,7 +101,9 @@ shinyUI(dashboardPage(
                                 
                                 #Main panel
                                 mainPanel(
-                                    dataTableOutput("numericSummary")    
+                                    box(width = 12, 
+                                        dataTableOutput("numericSummary") 
+                                    )  
                                 )
                             ) #End Sidebar layout
                     ) #End numeric Summary tab
@@ -120,7 +127,9 @@ shinyUI(dashboardPage(
                     ),
                     
                     mainPanel(
-                        plotOutput("PCAPlot"),
+                        box(width = 12, 
+                            plotOutput("PCAPlot")
+                        ),
                         br(),
                         downloadButton("savePCA", "Save this plot to a PNG?")
                     )
@@ -136,25 +145,43 @@ shinyUI(dashboardPage(
                              sidebarLayout(
                                 
                                 sidebarPanel(
-                                    checkboxInput("kNNCV", "Run Cross Validation to pick a good K?"),
-                                    conditionalPanel(condition="input.kNNCV==1", 
-                                                     sliderInput("kNNChoice", "Now that you've run CV, pick a K for your model:",
-                                                                 min=1, max=50, step=1, value=15),
-                                                     actionButton("generateKNN", "Generate!")
-                                                     )
+                                    h4("Run Cross Validation to pick a good K"),
+                                    h4("Note: This will take a second"),
+                                    actionButton("generateKNN", "Generate!")
                                 ),
                                 
                                 mainPanel(
-                                    box(
-                                        h4("K Nearest Neighbors does best with Cross Validation to determine K since there is no rule-of-thumb for choosing K"), width = 12
+                                    add_busy_spinner(spin="fading-circle"),
+                                    box(width = 12,
+                                        h4("K Nearest Neighbors does best with Cross Validation to determine K since there is no rule-of-thumb for choosing K") 
                                     ),
-                                    textOutput("knnText")
+                                    box(width = 12,
+                                        plotOutput("knnPlot")    
+                                    )
+                                    
                                 )
                              )
                         ),
                     
                     #2nd Tab designated to Logistic Regression
-                    tabPanel("Logistic Regression"),
+                    tabPanel("Logistic Regression", 
+                             sidebarLayout(
+                                 
+                                sidebarPanel(
+                                    
+                                    actionButton("generateLogistic", "Create Model!")
+                                ),
+                                
+                                mainPanel(
+                                    add_busy_spinner(spin="fading-circle"),
+                                    box(width=12, h4("Logistic Regression is a type of Generalized Linear Model where the response is a binary variable. In our case, it is whether a tumor is cancerous or not. Below are the coefficients from your model.")),
+                                    box(width = 12,
+                                        tableOutput("logisticCoefficients")
+                                    )
+                                    
+                                )
+                             )
+                    ),
                     
                     #3rd Tab designated to Classification Trees
                     tabPanel("Classification Trees",
@@ -194,12 +221,63 @@ shinyUI(dashboardPage(
                                  ),#End Sidebar Panel
                                  
                                  mainPanel(
-                                    plotOutput("modelPlot")
+                                    add_busy_spinner(spin="fading-circle"),
+                                    box(width = 12, 
+                                        h4("Below is a summary of the model you chose")),
+                                    box(width=12, 
+                                        plotOutput("modelPlot"))
                                  )
                         ) #End sidebar layout
                     ) #End classification tree tab
                 ) #End Model Tabset panel
-            )#End model tab item
+            ),#End model tab item
+            
+            tabItem(tabName = "predict",
+                tabsetPanel(
+                    
+                    tabPanel("Model Comparisons",
+                             sidebarLayout(
+                                 
+                                sidebarPanel(),
+                                
+                                mainPanel()
+                                 
+                             )
+                    ),
+                    
+                    
+                    tabPanel("Customized Predictions",
+                             
+                             sidebarLayout(
+                                 
+                                 sidebarPanel(
+                                    selectInput("modelSelect", "Select a model to be used for prediction:", 
+                                            choices = modelChoices,
+                                            selected = "Single Tree"),
+                                    sliderInput("radiusInput", "Select a value for Radius:", 
+                                            min=4, max=35, step=0.01, value=14),
+                                    sliderInput("textureInput", "Select a value for Texture:",
+                                            min=7, max=45, step=0.01, value = 19), 
+                                    sliderInput("perimeterInput", "Select a value for Perimeter:",
+                                            min=40, max=195, step=0.01, value=92),
+                                    sliderInput("areaInput", "Select a value for Area:", 
+                                            min=135, max=2700, step=0.1, value=655),
+                                    sliderInput("smoothnessInput", "Select a value for Smoothness:",
+                                            min=0.04, max=0.17, step=0.001, value=0.096),
+                                    actionButton("predict", "Run Prediction!")
+                                 ), 
+                             
+                                 mainPanel(
+                                     box(width = 12, h4("The Predicted diagnosis is:")),
+                                     box(width=12, verbatimTextOutput("showPrediction"))
+                                 )
+                             )
+                             
+                    )
+                )
+            )
+            
+            
         )#End Tab Items
     )#End Dashboard Body
 
