@@ -80,7 +80,7 @@ shinyServer(function(input, output, session) {
                     geom_boxplot(color="turquoise3")
                 ggplotly(g)
             }
-        }   
+        }  
     })
     
     
@@ -154,44 +154,90 @@ shinyServer(function(input, output, session) {
         
     })
     
+    
+    #Build KNN model
+    knnModel = eventReactive(input$generateKNN, {
+        #PICK UP HERE!!
+        #knn(Diagnosis ~ ., train=data_train, method="knn", preProcess=c("center", "scale"), k=input$kNNChoice)
+    })
+    
+    
+    output$knnText = renderText(
+        summary(knnModel())
+    )
+    
     #Build single tree model
     treeModel = eventReactive(input$generateSingle, {
-        tree(Diagnosis ~ ., data=data, split=input$singleIndex)
+        tree(Diagnosis ~ ., data=data_train, split=input$singleIndex)
     })
     
     #Build bagged tree model 
     baggedModel = eventReactive(input$generateBagged, {
-        randomForest(Diagnosis ~ ., data=data, ntree = input$baggedTrees, importance = input$baggedImportance)
+        randomForest(Diagnosis ~ ., data=data_train, ntree = input$baggedTrees, importance = T)
     })
     
     #Build Random Forest Model
     rfModel = eventReactive(input$generateRF, {
-        randomForest(Diagnosis ~ ., data=data, ntree=input$RFTrees, mtry = input$RFmtry, importance=T)
+        randomForest(Diagnosis ~ ., data=data_train, ntree=input$RFTrees, mtry = as.numeric(input$RFmtry), importance=T)
     })
     
-    #Build boosted bree model 
+    #Build boosted tree model 
     boostedModel = eventReactive(input$generateBoost, {
-        gbm(Diagnosis ~ ., distribution = "bernoulli", data = data, 
+        gbm(Diagnosis ~ ., distribution = "bernoulli", data = data_train, 
             n.trees = input$boostTrees, shrinkage = input$boostShrinkage, 
             interaction.depth = input$boostInteraction)
     })
     
+    
+    #Produce tree based model images
     output$modelPlot = renderPlot({
         
         if(input$treeType == "Single"){
             plot(treeModel())
             text(treeModel())    
-        } else if (input$treeType == "Bagged" & input$baggedImportance){
+        } else if (input$treeType == "Bagged"){
             varImpPlot(baggedModel())
-        } else if(input$treeType == "Bagged" &!input$baggedImportance){
-            plot(baggedModel())
+        } else if (input$treeType == "Random Forest"){
+            varImpPlot(rfModel())
         }
-        
-        
-        
     })
     
     
+    
+    #Handle the download button for PCA 
+    output$savePCA = downloadHandler(
+        filename = function(){
+            if(input$PCAType=="Biplot"){
+                paste0("PCA_Biplot.png")    
+            } else {
+                paste0("PCA_PropVariance.png")
+            }  
+        }, 
+        
+        content = function(file){
+            png(file)
+            if(input$PCAType == "Biplot"){
+                biplot(PCs, xlabs=rep(".", nrow(data)), cex=1.2, choices = c(as.numeric(input$PCX), as.numeric(input$PCY)))
+            }
+            
+            if(input$PCAType == "Variance Proportion Plot"){
+                par(mfrow = c(1,2))
+                plot(PCs$sdev^2/sum(PCs$sdev^2), xlab="Principal Component", ylab="Proportion of Variance Explained",
+                     ylim=c(0,1), type="b")
+                plot(cumsum(PCs$sdev^2/sum(PCs$sdev^2)), xlab="Principal Component", ylab="Cum. Proportion of Variance Explained", 
+                     ylim=c(0,1), type="b")
+            }
+            dev.off()
+        }
+    )
+    
+    #Handle download button for Data
+    output$saveData = downloadHandler(
+        filename="BreastCancerData.csv",
+        content = function(file){
+            write.csv(data, file)
+        }
+    )
     
     
     
