@@ -292,4 +292,49 @@ shinyServer(function(input, output, session) {
         prediction()
     })
     
+    #Generate out of sample prediction errors
+    treePred = eventReactive(input$generateSingle,{
+        predict(treeModel(), newdata=data_test, type="class")
+    })
+        
+    baggedPred = eventReactive(input$generateBagged, {
+        predict(baggedModel(), newdata=data_test, type="class")
+    })
+        
+    rfPred = eventReactive(input$generateRF,{
+        predict(rfModel(), newdata=data_test, type="class")
+    })
+    
+    knnPred = eventReactive(input$generateKNN, {
+       predict(knnModel(), newdata=data_test)
+    })
+     
+    logisticPred = eventReactive(input$generateLogistic, {
+        logisticPred = predict(logisticModel(), newdata=data_test, type="response")
+        logisticPred = ifelse(logisticPred >=0.5, "Cancerous", "Non-Cancerous")
+        return(logisticPred)
+    })
+    
+    
+    #Throw missclassification rates into a table to export
+    predMatrix = reactive({
+        data.frame(
+            Tree = treePred(),
+            Bagged = baggedPred(),
+            RandomForest = rfPred(),
+            KNN = knnPred(),
+            Logistic = logisticPred()
+        )
+    })
+
+    output$misClass = renderTable({
+        misclassTable = apply(predMatrix(), MARGIN = 2,FUN=function(x){
+            mean(x != data_test$Diagnosis)
+        })
+        misclassTable = as.matrix(misclassTable)
+        colnames(misclassTable) = "Misclassification Rate"
+        rownames(misclassTable) = c("Tree", "Bagged", "Random Forest", "KNN", "Logistic")
+        misclassTable
+    }, colnames = TRUE, rownames = TRUE, shaded=TRUE)
+    
 })

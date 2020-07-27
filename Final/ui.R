@@ -189,7 +189,7 @@ shinyUI(dashboardPage(
                                  
                                  sidebarPanel(
                                     selectInput("treeType", "Select a type of Tree to use for your model",
-                                                choices = c("Single", "Bagged", "Random Forest", "Boosted"),
+                                                choices = c("Single", "Bagged", "Random Forest"),
                                                 selected = "Single"),
                                     conditionalPanel(condition="input.treeType == 'Single'",
                                                      selectInput("singleIndex", "Select a split index for the algorithm",
@@ -208,15 +208,7 @@ shinyUI(dashboardPage(
                                                                  min=10, max=500, step=10, value=200),
                                                      conditionalPanel(condition="input.RFmtry == '5'",
                                                                       h4("Notice: selecting all 5 variables is essentially a bagged tree")),
-                                                     actionButton("generateRF", "Generate!")),
-                                    conditionalPanel(condition="input.treeType == 'Boosted'",
-                                                     sliderInput("boostTrees", "Select the number of Trees to use:",
-                                                                 min=100, max=5000, step=50, value=200),
-                                                     sliderInput("boostShrinkage", "Set a Shrinkage Parameter",
-                                                                 min=0.01, max=0.3, step=0.01, value=0.1),
-                                                     sliderInput("boostInteraction", "Set an Interaction Depth for your model:",
-                                                                 min=1, max=20, step=1, value=2),
-                                                     actionButton("generateBoost", "Generate!"))
+                                                     actionButton("generateRF", "Generate!"))
                                     
                                  ),#End Sidebar Panel
                                  
@@ -238,9 +230,15 @@ shinyUI(dashboardPage(
                     tabPanel("Model Comparisons",
                              sidebarLayout(
                                  
-                                sidebarPanel(),
+                                sidebarPanel(
+                                    h4("To the right are the models you created (when you've run each one):")
+                                ),
                                 
-                                mainPanel()
+                                mainPanel(
+                                    box(width = 12,
+                                        tableOutput("misClass")
+                                    )
+                                )
                                  
                              )
                     ),

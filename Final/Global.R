@@ -33,4 +33,4 @@ data_test = data[test, ]
 
 varNames = names(data%>%dplyr::select(-Diagnosis))
 
-modelChoices = c("Single Tree", "Bagged Tree", "Random Forest", "Boosted Tree", "KNN", "Logistic Regression")
+modelChoices = c("Single Tree", "Bagged Tree", "Random Forest", "KNN", "Logistic Regression")
