@@ -24,9 +24,13 @@ shinyUI(dashboardPage(
             #Info Page content
             tabItem(tabName = "info",
                 box(
-                    h4("This is a project centered around Breast Cancer Data")
+                    h4("This is a project centered around Breast Cancer Data"), width = 12
                 ),
-                dataTableOutput("readData")
+                checkboxInput("viewData", "View the data that this app uses?"),
+                conditionalPanel(condition="input.viewData == 1",
+                                 dataTableOutput("readData"),
+                                 downloadButton("saveData", "Save this Data to a CSV?")),
+                
             ),#End Info Tab item 
             
             #Summary Page Content
@@ -118,7 +122,7 @@ shinyUI(dashboardPage(
                     mainPanel(
                         plotOutput("PCAPlot"),
                         br(),
-                        actionButton("savePCA", "Save this plot?")
+                        downloadButton("savePCA", "Save this plot to a PNG?")
                     )
                 )#End sidebar layout
             ), #End PCA Tab item
@@ -132,12 +136,22 @@ shinyUI(dashboardPage(
                              sidebarLayout(
                                 
                                 sidebarPanel(
-                                    sliderInput("kNNChoice", "Select a K for this algorithm:",
-                                                min=1, max=50, step=1, value=15)
+                                    checkboxInput("kNNCV", "Run Cross Validation to pick a good K?"),
+                                    conditionalPanel(condition="input.kNNCV==1", 
+                                                     sliderInput("kNNChoice", "Now that you've run CV, pick a K for your model:",
+                                                                 min=1, max=50, step=1, value=15),
+                                                     actionButton("generateKNN", "Generate!")
+                                                     )
                                 ),
                                 
-                                mainPanel()
-                             )),
+                                mainPanel(
+                                    box(
+                                        h4("K Nearest Neighbors does best with Cross Validation to determine K since there is no rule-of-thumb for choosing K"), width = 12
+                                    ),
+                                    textOutput("knnText")
+                                )
+                             )
+                        ),
                     
                     #2nd Tab designated to Logistic Regression
                     tabPanel("Logistic Regression"),
@@ -157,7 +171,6 @@ shinyUI(dashboardPage(
                                     conditionalPanel(condition="input.treeType == 'Bagged'",
                                                      sliderInput("baggedTrees", "How many trees do you want in your model?",
                                                                  min=10, max=500, step=10, value = 200),
-                                                     checkboxInput("baggedImportance", "Would you like to evaluate importance of variables?"),
                                                      actionButton("generateBagged", "Generate!")
                                                      ),
                                     conditionalPanel(condition="input.treeType == 'Random Forest'",
@@ -166,7 +179,6 @@ shinyUI(dashboardPage(
                                                                  selected = "2"),
                                                      sliderInput("RFTrees", "How many trees do you want in your model?",
                                                                  min=10, max=500, step=10, value=200),
-                                                     checkboxInput("RFImportance", "Would you like to evaluate importance of variables?"),
                                                      conditionalPanel(condition="input.RFmtry == '5'",
                                                                       h4("Notice: selecting all 5 variables is essentially a bagged tree")),
                                                      actionButton("generateRF", "Generate!")),
