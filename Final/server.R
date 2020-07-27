@@ -134,7 +134,7 @@ shinyServer(function(input, output, session) {
         selected = as.numeric(input$PCX)
         secondChoice = firstChoice[-selected]
         selectInput("PCY", "Select a Principal Component for the Y axis:",
-                    choices=secondChoice)
+                    choices=secondChoice, selected = 2)
         
     })
     
@@ -153,4 +153,46 @@ shinyServer(function(input, output, session) {
         }
         
     })
+    
+    #Build single tree model
+    treeModel = eventReactive(input$generateSingle, {
+        tree(Diagnosis ~ ., data=data, split=input$singleIndex)
+    })
+    
+    #Build bagged tree model 
+    baggedModel = eventReactive(input$generateBagged, {
+        randomForest(Diagnosis ~ ., data=data, ntree = input$baggedTrees, importance = input$baggedImportance)
+    })
+    
+    #Build Random Forest Model
+    rfModel = eventReactive(input$generateRF, {
+        randomForest(Diagnosis ~ ., data=data, ntree=input$RFTrees, mtry = input$RFmtry, importance=T)
+    })
+    
+    #Build boosted bree model 
+    boostedModel = eventReactive(input$generateBoost, {
+        gbm(Diagnosis ~ ., distribution = "bernoulli", data = data, 
+            n.trees = input$boostTrees, shrinkage = input$boostShrinkage, 
+            interaction.depth = input$boostInteraction)
+    })
+    
+    output$modelPlot = renderPlot({
+        
+        if(input$treeType == "Single"){
+            plot(treeModel())
+            text(treeModel())    
+        } else if (input$treeType == "Bagged" & input$baggedImportance){
+            varImpPlot(baggedModel())
+        } else if(input$treeType == "Bagged" &!input$baggedImportance){
+            plot(baggedModel())
+        }
+        
+        
+        
+    })
+    
+    
+    
+    
+    
 })

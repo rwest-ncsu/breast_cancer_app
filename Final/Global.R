@@ -8,6 +8,7 @@ library(DT)
 library(knitr)
 library(tree)
 library(gbm)
+library(randomForest)
 
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(

@@ -128,7 +128,16 @@ shinyUI(dashboardPage(
                 tabsetPanel(
                     
                     #1st Tab designated to K Nearest Neighbors
-                    tabPanel("K Nearest Neighbors"),
+                    tabPanel("K Nearest Neighbors",
+                             sidebarLayout(
+                                
+                                sidebarPanel(
+                                    sliderInput("kNNChoice", "Select a K for this algorithm:",
+                                                min=1, max=50, step=1, value=15)
+                                ),
+                                
+                                mainPanel()
+                             )),
                     
                     #2nd Tab designated to Logistic Regression
                     tabPanel("Logistic Regression"),
@@ -142,7 +151,7 @@ shinyUI(dashboardPage(
                                                 choices = c("Single", "Bagged", "Random Forest", "Boosted"),
                                                 selected = "Single"),
                                     conditionalPanel(condition="input.treeType == 'Single'",
-                                                     selectInput("singleIndex", "Select an index for the algorithm",
+                                                     selectInput("singleIndex", "Select a split index for the algorithm",
                                                                  choices=c("deviance", "gini")),
                                                      actionButton("generateSingle", "Generate!")),
                                     conditionalPanel(condition="input.treeType == 'Bagged'",
@@ -172,7 +181,9 @@ shinyUI(dashboardPage(
                                     
                                  ),#End Sidebar Panel
                                  
-                                 mainPanel()
+                                 mainPanel(
+                                    plotOutput("modelPlot")
+                                 )
                         ) #End sidebar layout
                     ) #End classification tree tab
                 ) #End Model Tabset panel
