@@ -1,7 +1,9 @@
 source("Global.R")
- 
-# Define server logic required to draw a histogram
+
+
 shinyServer(function(input, output, session) {
+    
+    
     
     output$readData = renderDataTable({
         datatable(data)

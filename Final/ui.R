@@ -25,8 +25,12 @@ shinyUI(dashboardPage(
             #Info Page content
             tabItem(tabName = "info",
                 conditionalPanel(condition="input.viewData == 0",
+                    box(width = 12,
+                        h3("This project focuses on a dataset pertaining to breast cancer. The primary goal of this app is binary classification of tumors as cancerous or non-cancerous.")
+                    ),
+                    a(href="https://www.kaggle.com/merishnasuwal/breast-cancer-prediction-dataset", "Visit Kaggle.com for more analyses!"),
                     box(width=12,
-                        h3("This project focuses on a dataset pertaining to breast cancer. The primary goal of this app is binary classification of tumors as cancerous or non-cancerous. The data can be viewed, sorted, and saved below for your own analyses. Here is a quick run-down of the variables contained in this dataset:"),
+                        h3("The data can be viewed, sorted, and saved below for your own analyses. Here is a quick run-down of the variables contained in this dataset:"),
                         br(), 
                         h4("Diagnosis: The target binary variable"), 
                         h4("Radius: Radius of the tumor"),
@@ -41,8 +45,8 @@ shinyUI(dashboardPage(
                         h4("PCA: This tab performs a Principal Components Analysis on our data. Essentially, PCA tries to get at the core of your data by finding the linear combination of variables that explains most of the variation in the entire dataset."),
                         h4("Modeling: This tab allows you to build 5 different supervised learning models to predict the Diagnosis of each patient."),
                         h4("Predictions: This tab gives you the ability to compare how well your models did on a test set. The splitting of training and testing data is done in the back-end by the server before this app loads. You'll need to create every type of model to see how well they stack against each other. You can also set values of each variables in the last subtab to predict if a new individual with these values would be diagnosed with a Cancerous or Non-cancerous tumor.")
-                    )         
-                        )
+                    )
+                )
                 ,
                 checkboxInput("viewData", "View the data that this app uses?"),
                 conditionalPanel(condition="input.viewData == 1",
