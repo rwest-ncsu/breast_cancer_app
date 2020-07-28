@@ -196,6 +196,7 @@ shinyUI(dashboardPage(
                                 mainPanel(
                                     add_busy_spinner(spin="fading-circle"),
                                     box(width=12, h4("Logistic Regression is a type of Generalized Linear Model where the response is a binary variable. In our case, it is whether a tumor is cancerous or not. Below are the coefficients from your model.")),
+                                    img(source="Logistic.png"),
                                     box(width = 12,
                                         tableOutput("logisticCoefficients")
                                     )
