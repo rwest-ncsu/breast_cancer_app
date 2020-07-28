@@ -85,7 +85,7 @@ shinyServer(function(input, output, session) {
     
     
     #Code for Numeric Summaries
-    output$numericSummary = renderDataTable({
+    output$numericSummary = renderTable({
         
         if(input$groupByDiagnosis){
             diag0 = data %>% dplyr::select(input$numericVar, Diagnosis) %>% filter(Diagnosis=="Non-Cancerous")
@@ -111,7 +111,7 @@ shinyServer(function(input, output, session) {
             diag1$Diagnosis = "Cancerous"
             
             tab = rbind(diag0, diag1)
-            DT::datatable(tab)
+            tab
          
         } else {
             tab = data %>% dplyr::select(input$numericVar) %>% dplyr::summarize(
@@ -124,8 +124,8 @@ shinyServer(function(input, output, session) {
             ) 
         }
         
-        DT::datatable(tab)
-    })
+        tab
+    }, rownames = TRUE, colnames = TRUE, striped=TRUE, width = NULL)
     
     
     #Code for PCA Plot
@@ -182,7 +182,7 @@ shinyServer(function(input, output, session) {
         rownames(tab) = c("Intercept", "Radius", "Texture", "Perimeter", "Area", "Smoothness")
         colnames(tab) =  "Coefficients"
         tab
-    }, rownames = TRUE, striped = TRUE, colnames = TRUE)
+    }, rownames = TRUE, striped = TRUE, colnames = TRUE, width = NULL)
     
     #Build single tree model
     treeModel = eventReactive(input$generateSingle, {
@@ -335,6 +335,6 @@ shinyServer(function(input, output, session) {
         colnames(misclassTable) = "Misclassification Rate"
         rownames(misclassTable) = c("Tree", "Bagged", "Random Forest", "KNN", "Logistic")
         misclassTable
-    }, colnames = TRUE, rownames = TRUE, shaded=TRUE)
+    }, colnames = TRUE, rownames = TRUE, striped=TRUE, width = NULL)
     
 })

@@ -4,7 +4,7 @@ source("Global.R")
 shinyUI(dashboardPage(
     
     #Title
-    dashboardHeader(title="Breast Cancer Data"),
+    dashboardHeader(title="Breast Cancer Project"),
     
     #Define the sidebar menu items
     dashboardSidebar(
@@ -24,9 +24,26 @@ shinyUI(dashboardPage(
             
             #Info Page content
             tabItem(tabName = "info",
-                box(width=12,
-                    h4("This is a project centered around Breast Cancer Data")
-                ),
+                conditionalPanel(condition="input.viewData == 0",
+                    box(width=12,
+                        h3("This project focuses on a dataset pertaining to breast cancer. The primary goal of this app is binary classification of tumors as cancerous or non-cancerous. The data can be viewed, sorted, and saved below for your own analyses. Here is a quick run-down of the variables contained in this dataset:"),
+                        br(), 
+                        h4("Diagnosis: The target binary variable"), 
+                        h4("Radius: Radius of the tumor"),
+                        h4("Texture: Measure of grey-scale values on imaging software"),
+                        h4("Perimeter: Approximate size of core tumor"),
+                        h4("Area: Approximate area of core tumor"),
+                        h4("Smoothness: Approximate local variation in radius lengths"), 
+                        br(), 
+                        h3("On the left, there are tabs that will allow you to explore and build models based on this dataset. Here's what each tab does:"),
+                        br(),
+                        h4("Summaries: This tab allows you to create your own visual and numeric explorations of the dataset. Hover over the plots to view exact datapoints"),
+                        h4("PCA: This tab performs a Principal Components Analysis on our data. Essentially, PCA tries to get at the core of your data by finding the linear combination of variables that explains most of the variation in the entire dataset."),
+                        h4("Modeling: This tab allows you to build 5 different supervised learning models to predict the Diagnosis of each patient."),
+                        h4("Predictions: This tab gives you the ability to compare how well your models did on a test set. The splitting of training and testing data is done in the back-end by the server before this app loads. You'll need to create every type of model to see how well they stack against each other. You can also set values of each variables in the last subtab to predict if a new individual with these values would be diagnosed with a Cancerous or Non-cancerous tumor.")
+                    )         
+                        )
+                ,
                 checkboxInput("viewData", "View the data that this app uses?"),
                 conditionalPanel(condition="input.viewData == 1",
                                  box(width = 12, 
@@ -102,7 +119,7 @@ shinyUI(dashboardPage(
                                 #Main panel
                                 mainPanel(
                                     box(width = 12, 
-                                        dataTableOutput("numericSummary") 
+                                        tableOutput("numericSummary") 
                                     )  
                                 )
                             ) #End Sidebar layout
@@ -231,7 +248,7 @@ shinyUI(dashboardPage(
                              sidebarLayout(
                                  
                                 sidebarPanel(
-                                    h4("To the right are the models you created (when you've run each one):")
+                                    h4("To the right are the Test Misclassification rates for the models you created (when you've run each one):")
                                 ),
                                 
                                 mainPanel(
@@ -262,7 +279,8 @@ shinyUI(dashboardPage(
                                             min=135, max=2700, step=0.1, value=655),
                                     sliderInput("smoothnessInput", "Select a value for Smoothness:",
                                             min=0.04, max=0.17, step=0.001, value=0.096),
-                                    actionButton("predict", "Run Prediction!")
+                                    actionButton("predict", "Run Prediction!"), 
+                                    h4("If no prediction displays, it means you didn't create that model. Go to the 'Modeling' tab and hit 'Generate!'")
                                  ), 
                              
                                  mainPanel(
