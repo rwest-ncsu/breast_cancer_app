@@ -4,7 +4,7 @@ source("Global.R")
 shinyUI(dashboardPage(
     
     #Title
-    dashboardHeader(title="Breast Cancer Project"),
+    dashboardHeader(title="Breast Cancer Classification"),
     
     #Define the sidebar menu items
     dashboardSidebar(
@@ -60,11 +60,9 @@ shinyUI(dashboardPage(
             #Summary Page Content
             tabItem(tabName = "summaries",
                 tabsetPanel(
-                    
                     #1st tab designated to viewing 2D plots
                     tabPanel("Plots",
                         sidebarLayout(
-                            
                             #Sidebar for selecting type of plot
                             sidebarPanel(
                                 selectInput("plotType", 
@@ -170,7 +168,6 @@ shinyUI(dashboardPage(
                                     h4("Note: This will take a second"),
                                     actionButton("generateKNN", "Generate!")
                                 ),
-                                
                                 mainPanel(
                                     add_busy_spinner(spin="fading-circle"),
                                     box(width = 12,
@@ -187,12 +184,9 @@ shinyUI(dashboardPage(
                     #2nd Tab designated to Logistic Regression
                     tabPanel("Logistic Regression", 
                              sidebarLayout(
-                                 
                                 sidebarPanel(
-                                    
                                     actionButton("generateLogistic", "Create Model!")
                                 ),
-                                
                                 mainPanel(
                                     add_busy_spinner(spin="fading-circle"),
                                     box(width=12, h4("Logistic Regression is a type of Generalized Linear Model where the response is a binary variable. In our case, it is whether a tumor is cancerous or not. Below are the coefficients from your model.")),
@@ -200,59 +194,70 @@ shinyUI(dashboardPage(
                                         helpText('\\(Pr(Y_i=1|X_i) = {\\frac{exp(\\beta_0\\ + \\beta_1X_i\\ + \\beta_2X_2\\ + \\beta_3X_3\\ + \\beta_4X_4\\ + \\beta_5X_5)}{1 + exp (\\beta_0\\ + \\beta_1X_i\\ + \\beta_2X_2\\ + \\beta_3X_3\\ + \\beta_4X_4\\ + \\beta_5X_5)}}\\)'),
                                         helpText('Here are the model estimates of the \\(\\beta_is\\):')
                                     ),
-                                    
                                     box(width = 12,
                                         tableOutput("logisticCoefficients")
                                     )
-                                    
                                 )
                              )
                     ),
                     
                     #3rd Tab designated to Classification Trees
-                    tabPanel("Classification Trees",
+                    tabPanel("Single Tree",
                              sidebarLayout(
-                                 
                                  sidebarPanel(
-                                    selectInput("treeType", "Select a type of Tree to use for your model",
-                                                choices = c("Single", "Bagged", "Random Forest"),
-                                                selected = "Single"),
-                                    conditionalPanel(condition="input.treeType == 'Single'",
-                                                     selectInput("singleIndex", "Select a split index for the algorithm",
-                                                                 choices=c("deviance", "gini")),
-                                                     actionButton("generateSingle", "Generate!")),
-                                    conditionalPanel(condition="input.treeType == 'Bagged'",
-                                                     sliderInput("baggedTrees", "How many trees do you want in your model?",
-                                                                 min=10, max=500, step=10, value = 200),
-                                                     actionButton("generateBagged", "Generate!")
-                                                     ),
-                                    conditionalPanel(condition="input.treeType == 'Random Forest'",
-                                                     selectInput("RFmtry", "Select the number of variables to use",
-                                                                 choices=c("1", "2", "3", "4", "5"),
-                                                                 selected = "2"),
-                                                     sliderInput("RFTrees", "How many trees do you want in your model?",
-                                                                 min=10, max=500, step=10, value=200),
-                                                     conditionalPanel(condition="input.RFmtry == '5'",
-                                                                      h4("Notice: selecting all 5 variables is essentially a bagged tree")),
-                                                     actionButton("generateRF", "Generate!"))
-                                    
+                                   selectInput("singleIndex", "Select a split index for the algorithm",
+                                               choices=c("deviance", "gini")),
+                                    actionButton("generateSingle", "Generate!")
                                  ),#End Sidebar Panel
-                                 
                                  mainPanel(
-                                    add_busy_spinner(spin="fading-circle"),
                                     box(width = 12, 
-                                        h4("Below is a summary of the model you chose")),
+                                        h4("Below is a summary of your Single Tree Model")),
                                     box(width=12, 
-                                        plotOutput("modelPlot"))
+                                        plotOutput("singleTreePlot"))
                                  )
-                        ) #End sidebar layout
-                    ) #End classification tree tab
+                             )
+                        ), #End sidebar layout
+                     #End single tree tab
+                    tabPanel("Bagged Tree",
+                      sidebarLayout(
+                        sidebarPanel(
+                          sliderInput("baggedTrees", "How many trees do you want in your model?",
+                                      min=10, max=500, step=10, value = 200),
+                          actionButton("generateBagged", "Generate!")
+                        ), 
+                        mainPanel(
+                          box(width = 12, 
+                              h4("Below is a summary of your Bagged Trees Model")),
+                          box(width = 12,
+                              plotOutput("baggedTreePlot"))
+                        )
+                      )
+                    ), #End bagged tree tab 
+                    tabPanel("Random Forest", 
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("RFmtry", "Select the number of variables to use",
+                                      choices=c("1", "2", "3", "4", "5"),
+                                      selected = "2"),
+                         sliderInput("RFTrees", "How many trees do you want in your model?",
+                                     min=10, max=500, step=10, value=200),
+                         conditionalPanel(condition="input.RFmtry == '5'",
+                                          h4("Notice: selecting all 5 variables is essentially a bagged tree")),
+                          actionButton("generateRF", "Generate!")
+                        ), 
+                        mainPanel(
+                          box(width = 12, 
+                              h4("Below is a summary of the Random Forest Model")),
+                          box(width = 12,
+                              plotOutput("rfPlot"))
+                        )
+                      )
+                    ) #End RF tab
                 ) #End Model Tabset panel
             ),#End model tab item
             
             tabItem(tabName = "predict",
                 tabsetPanel(
-                    
                     tabPanel("Model Comparisons",
                              sidebarLayout(
                                  
@@ -305,5 +310,4 @@ shinyUI(dashboardPage(
             
         )#End Tab Items
     )#End Dashboard Body
-
 ))#End ShinyUI and Dashboard Page

@@ -65,7 +65,7 @@ shinyServer(function(input, output, session) {
             } else if(!input$colorCodeScatter & input$scatterTrend){
                 g = ggplot(data=data, aes_string(x=input$xScatter, y=input$yScatter))+
                     geom_point(color="turquoise3")+
-                    geom_smooth(se=TRUE, color="blue")
+                    geom_smooth(se=TRUE, color="turquoise3")
                 ggplotly(g)
             }
             
@@ -90,7 +90,7 @@ shinyServer(function(input, output, session) {
     output$numericSummary = renderTable({
         
         if(input$groupByDiagnosis){
-            diag0 = data %>% dplyr::select(input$numericVar, Diagnosis) %>% filter(Diagnosis=="Non-Cancerous")
+            diag0 = data %>% dplyr::select(input$numericVar, Diagnosis) %>% filter(Diagnosis=="Non-cancerous")
             diag0 = diag0 %>% dplyr::summarize(
                 Min = min(diag0[[input$numericVar]]),
                 Max = max(diag0[[input$numericVar]]),
@@ -99,7 +99,7 @@ shinyServer(function(input, output, session) {
                 Mean = round(mean(diag0[[input$numericVar]]), 3),
                 SD = round(sd(diag0[[input$numericVar]]), 3)
             )
-            diag0$Diagnosis = "Non-Cancerous"
+            diag0$Diagnosis = "Non-cancerous"
                 
             diag1 = data %>% dplyr::select(input$numericVar, Diagnosis) %>% filter(Diagnosis=="Cancerous")
             diag1 = diag1 %>% dplyr::summarize(
@@ -160,12 +160,11 @@ shinyServer(function(input, output, session) {
     #Build KNN model
     knnModel = eventReactive(input$generateKNN, {
         #knn(Diagnosis ~ ., train=data_train, test=data_test, cl=data_train$Diagnosis, k=input$kNNChoice)
-        
-        trctrl = trainControl(method="repeatedcv", number = 10, repeats = 3)
+        trctrl = trainControl(method="repeatedcv", number = 5, repeats = 1)
         train(Diagnosis ~ ., data=data_train, method="knn",
               trControl = trctrl,
               preProcess = c("center", "scale"),
-              tuneGrid = data.frame(k = seq(2, 50, by=2)))
+              tuneGrid = data.frame(k = c(2, 4, 8, 16, 32)))
     })
     
     output$knnPlot = renderPlot(
@@ -209,19 +208,18 @@ shinyServer(function(input, output, session) {
     })
     
     #Produce tree based model images
-    output$modelPlot = renderPlot({
-        
-        if(input$treeType == "Single"){
-            plot(treeModel())
-            text(treeModel())    
-        } else if (input$treeType == "Bagged"){
-            varImpPlot(baggedModel())
-        } else if (input$treeType == "Random Forest"){
-            varImpPlot(rfModel())
-        }
+    output$singleTreePlot = renderPlot({
+      plot(treeModel())
+      text(treeModel())
     })
     
+    output$baggedTreePlot = renderPlot({
+      varImpPlot(baggedModel())
+    })
     
+    output$rfPlot = renderPlot({
+      varImpPlot(rfModel())
+    })
     
     #Handle the download button for PCA 
     output$savePCA = downloadHandler(
@@ -273,7 +271,6 @@ shinyServer(function(input, output, session) {
     prediction = eventReactive(input$predict, {
         if(input$modelSelect == "Single Tree"){
             pred = predict(treeModel(), newdata = newData(), type="class")
-            #pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
         } else if(input$modelSelect =="Bagged Tree"){
             pred = predict(baggedModel(), newdata = newData(), type="class")
             pred = ifelse(pred == 2, "Cancerous", "Non-cancerous")
@@ -313,7 +310,7 @@ shinyServer(function(input, output, session) {
      
     logisticPred = eventReactive(input$generateLogistic, {
         logisticPred = predict(logisticModel(), newdata=data_test, type="response")
-        logisticPred = ifelse(logisticPred >=0.5, "Cancerous", "Non-Cancerous")
+        logisticPred = ifelse(logisticPred >=0.5, "Cancerous", "Non-cancerous")
         return(logisticPred)
     })
     

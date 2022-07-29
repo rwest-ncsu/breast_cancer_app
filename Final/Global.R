@@ -15,7 +15,7 @@ library(shinybusy)
 
 data = read_csv("Breast_cancer_data.csv")
 data = data %>% dplyr::transmute(
-  Diagnosis = factor(diagnosis, levels = c(0, 1), labels = c("Non-Cancerous", "Cancerous")),
+  Diagnosis = factor(diagnosis, levels = c(0, 1), labels = c("Non-cancerous", "Cancerous")),
   Radius = mean_radius,
   Texture = mean_texture,
   Perimeter = mean_perimeter,
