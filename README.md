@@ -1,5 +1,4 @@
 # Breast Cancer Classification App
 
-To use this app, open an R session and run the following command:
+To use this app, click [here](https://rwest96.shinyapps.io/final/)
 
-`shiny::runGitHub(repo="rwest-ncsu/Final.git", subdir = "Final")`
